@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lunaris · Trend Tracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070f;--s1:#0e0e1c;--s2:#161625;--s3:#1e1e30;--s4:#27273e;--s5:#32324a;
+  --b1:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.13);--b3:rgba(255,255,255,0.22);
+  --t1:#f2f2ff;--t2:#8888b0;--t3:#44446a;
+  --v:#7c6fff;--pk:#ff5c8a;--gr:#00d4a0;--am:#ffb830;
+  --gm:linear-gradient(135deg,#7c6fff,#ff5c8a);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Bricolage Grotesque',sans-serif}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:rgba(7,7,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;flex-wrap:wrap;gap:8px}
+.logo-sm{display:flex;align-items:center;gap:8px}
+.logo-sm-ico{width:30px;height:30px;border-radius:8px;background:var(--gm);display:flex;align-items:center;justify-content:center;font-size:14px}
+.logo-sm-txt{font-family:'Bricolage Grotesque',sans-serif;font-size:17px;font-weight:800;background:var(--gm);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.live-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:5px 11px;border-radius:20px;background:rgba(0,212,160,0.1);border:1px solid rgba(0,212,160,0.2);color:var(--gr)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--gr);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,160,0.5)}60%{box-shadow:0 0 0 5px rgba(0,212,160,0)}}
+.mkt-tog{display:flex;gap:5px;background:var(--s2);border:1px solid var(--b1);border-radius:11px;padding:3px}
+.mkt-opt{padding:7px 16px;border-radius:8px;font-family:'Bricolage Grotesque',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--t2);transition:all 0.2s}
+.mkt-opt:hover{color:var(--t1)}
+.mkt-opt.active.fr{background:rgba(59,126,255,0.2);color:#6db3ff}
+.mkt-opt.active.us{background:rgba(255,59,110,0.2);color:#ff7ba0}
+
+/* CONTENT */
+.content{padding:18px 20px;max-width:1100px;margin:0 auto}
+
+/* PLATFORMS */
+.plt-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.plt-tab{padding:9px 18px;border-radius:20px;border:1px solid var(--b1);background:var(--s1);color:var(--t2);font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.22s;display:flex;align-items:center;gap:6px}
+.plt-tab:hover{border-color:var(--b2);color:var(--t1)}
+.plt-tab.active{color:#fff;border-color:transparent}
+.plt-tab.reels.active{background:linear-gradient(135deg,#833ab4,#fd1d1d)}
+.plt-tab.post.active{background:linear-gradient(135deg,#405de6,#e1306c)}
+.plt-tab.threads.active{background:#222;border-color:#444;color:#fff}
+.plt-tab.tiktok.active{background:linear-gradient(135deg,#010101,#ff0050)}
+
+/* FILTERS */
+.filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.dchip{padding:7px 16px;border-radius:20px;border:1px solid var(--b1);background:transparent;color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif}
+.dchip:hover{background:var(--b1);color:var(--t1)}
+.dchip.active{background:var(--gm);border-color:transparent;color:#fff}
+.sep{width:1px;height:20px;background:var(--b1);flex-shrink:0}
+.nchip-wrap{display:flex;gap:6px;flex-wrap:wrap}
+.nchip{padding:6px 14px;border-radius:20px;border:1px solid var(--b1);background:transparent;color:var(--t2);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif}
+.nchip:hover{background:var(--b1);color:var(--t1)}
+.nchip.active.fr{background:rgba(59,126,255,0.15);border-color:rgba(59,126,255,0.4);color:#6db3ff}
+.nchip.active.us{background:rgba(255,59,110,0.15);border-color:rgba(255,59,110,0.4);color:#ff7ba0}
+
+/* SEARCH */
+.search-wrap{display:flex;justify-content:center;margin-bottom:20px}
+.btn-go{padding:13px 32px;border-radius:20px;border:none;font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:9px;transition:all 0.22s}
+.btn-go.fr{background:linear-gradient(135deg,#3b7eff,#7c6fff);color:#fff;box-shadow:0 4px 20px rgba(59,126,255,0.35)}
+.btn-go.us{background:linear-gradient(135deg,#ff3b6e,#ff5c8a);color:#fff;box-shadow:0 4px 20px rgba(255,59,110,0.35)}
+.btn-go:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.btn-go:disabled{opacity:0.4;cursor:not-allowed;transform:none;filter:none;box-shadow:none}
+.spin{width:14px;height:14px;border:2.5px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LOADING */
+.loading-box{background:var(--s1);border:1px solid var(--b1);border-radius:20px;padding:28px 24px;margin-bottom:22px;display:none;text-align:center}
+.loading-box.on{display:block}
+.loading-logo{font-size:36px;margin-bottom:16px;animation:bounce 1.5s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.loading-title{font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px}
+.loading-msg{font-size:14px;color:var(--t2);margin-bottom:20px;min-height:22px}
+.loading-bar-track{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;margin-bottom:16px;max-width:400px;margin-left:auto;margin-right:auto}
+.loading-bar-fill{height:100%;border-radius:3px;background:var(--gm);width:0%;transition:width 0.8s ease}
+.loading-steps{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.lstep{font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;background:var(--s3);color:var(--t3);transition:all 0.4s}
+.lstep.done{background:rgba(0,212,160,0.1);color:var(--gr);border:1px solid rgba(0,212,160,0.2)}
+.lstep.active{background:rgba(124,111,255,0.15);color:#a294ff;border:1px solid rgba(124,111,255,0.25)}
+.loading-timer{font-size:13px;color:var(--t2);font-weight:600;margin-top:8px}
+.btn-retry{display:none;margin:14px auto 0;padding:10px 22px;border-radius:12px;background:var(--gm);border:none;color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+.btn-retry.on{display:block}
+
+/* RESULTS */
+.results-hd{display:none;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.results-hd.on{display:flex}
+.results-title{font-size:14px;font-weight:600;color:var(--t2);display:flex;align-items:center;gap:8px}
+.results-count{background:var(--gm);color:#fff;font-size:11px;font-weight:700;padding:3px 11px;border-radius:20px}
+
+/* GRID */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:28px}
+.sk{background:linear-gradient(90deg,var(--s1) 25%,var(--s2) 50%,var(--s1) 75%);background-size:200%;animation:sk 1.5s infinite;border-radius:16px;height:280px}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.empty{grid-column:1/-1;text-align:center;padding:80px 20px}
+.empty-ico{font-size:52px;margin-bottom:16px;opacity:0.12}
+.empty-txt b{color:var(--t2);display:block;font-size:17px;margin-bottom:7px;font-family:'Bricolage Grotesque',sans-serif}
+.empty-txt{font-size:14px;color:var(--t3);line-height:1.8}
+
+/* CARDS */
+.tcard{background:var(--s1);border:1px solid var(--b1);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.25s;display:flex;flex-direction:column}
+.tcard-bar{height:3px;width:100%;opacity:0;transition:opacity 0.3s}
+.tcard.reels .tcard-bar{background:linear-gradient(90deg,#833ab4,#fd1d1d,#fcaf45)}
+.tcard.post .tcard-bar{background:linear-gradient(90deg,#405de6,#e1306c)}
+.tcard.threads .tcard-bar{background:linear-gradient(90deg,#fff,#666)}
+.tcard.tiktok .tcard-bar{background:linear-gradient(90deg,#ff0050,#00f2ea)}
+.tcard:hover{border-color:var(--b2);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.6)}
+.tcard:hover .tcard-bar,.tcard.sel .tcard-bar{opacity:1}
+.tcard.sel{border-color:rgba(124,111,255,0.4);box-shadow:0 0 0 1px rgba(124,111,255,0.2),0 16px 48px rgba(0,0,0,0.6)}
+.tcard-visual{height:130px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:var(--s2)}
+.tcard-visual-bg{position:absolute;inset:0;opacity:0.2;transition:opacity 0.3s}
+.tcard.reels .tcard-visual-bg{background:linear-gradient(135deg,#833ab4,#fd1d1d)}
+.tcard.post .tcard-visual-bg{background:linear-gradient(135deg,#405de6,#e1306c)}
+.tcard.threads .tcard-visual-bg{background:linear-gradient(135deg,#333,#888)}
+.tcard.tiktok .tcard-visual-bg{background:linear-gradient(135deg,#010101,#ff0050)}
+.tcard:hover .tcard-visual-bg{opacity:0.3}
+.tcard-visual-ico{font-size:40px;position:relative;z-index:1;opacity:0.7;transition:all 0.3s}
+.tcard:hover .tcard-visual-ico{opacity:1;transform:scale(1.1)}
+.tcard-heat{position:absolute;top:10px;right:10px;z-index:2;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
+.hot{background:rgba(255,92,138,0.25);border:1px solid rgba(255,92,138,0.3);color:#ff7aa5}
+.rising{background:rgba(124,111,255,0.25);border:1px solid rgba(124,111,255,0.3);color:#a294ff}
+.stable{background:rgba(0,212,160,0.2);border:1px solid rgba(0,212,160,0.25);color:var(--gr)}
+.tcard-plat{position:absolute;bottom:8px;left:10px;z-index:2;font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.8px}
+.tcard-src{position:absolute;bottom:8px;right:10px;z-index:2;font-size:9px;color:rgba(255,255,255,0.4);font-style:italic}
+.tcard-body{padding:14px;flex:1;display:flex;flex-direction:column;gap:7px}
+.tcard-title{font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;line-height:1.35}
+.tcard-desc{font-size:12px;color:var(--t2);line-height:1.65;flex:1}
+.tcard-why{background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.15);border-radius:8px;padding:6px 10px;font-size:11px;color:#c4b5fd;line-height:1.5}
+.tcard-audio{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--t2);background:var(--s3);border:1px solid var(--b1);border-radius:20px;padding:3px 9px}
+.tcard-overlay{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#a294ff;background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.15);border-radius:20px;padding:3px 9px}
+.tcard-tags{display:flex;flex-wrap:wrap;gap:4px}
+.tcard-tag{background:var(--s3);border:1px solid var(--b1);padding:2px 8px;border-radius:20px;font-size:10px;color:var(--t3)}
+.tcard-footer{display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px solid var(--b1);flex-wrap:wrap;gap:4px}
+.tcard-stats{display:flex;gap:8px;font-size:11px;color:var(--t3)}
+.tcard-actions{border-top:1px solid var(--b1);padding:10px 14px;display:flex;gap:7px}
+.btn-adapt{flex:1;padding:9px;border-radius:9px;background:var(--gm);border:none;color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.btn-adapt:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-htag{width:34px;height:34px;border-radius:8px;border:1px solid var(--b1);background:transparent;color:var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.2s;flex-shrink:0}
+.btn-htag:hover{background:var(--b1);color:var(--t1)}
+
+/* STUDIO */
+.studio{background:var(--s1);border:1px solid var(--b1);border-radius:22px;overflow:hidden;margin-bottom:20px;display:none;box-shadow:0 16px 48px rgba(0,0,0,0.5)}
+.studio.on{display:block;animation:up 0.3s ease}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.studio-top{padding:20px 22px;background:linear-gradient(135deg,rgba(124,111,255,0.08),rgba(255,92,138,0.04));border-bottom:1px solid var(--b1);display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.studio-chip{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#a294ff;margin-bottom:6px}
+.studio-title{font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:800;margin-bottom:5px;background:var(--gm);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.studio-desc{font-size:13px;color:var(--t2);max-width:540px;line-height:1.6}
+.close-st{background:var(--s3);border:1px solid var(--b2);color:var(--t2);width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:all 0.2s}
+.close-st:hover{background:var(--s4);color:var(--t1)}
+.st-tabs{display:flex;border-bottom:1px solid var(--b1);padding:0 22px;overflow-x:auto}
+.sttab{padding:12px 16px;font-size:13px;font-weight:600;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;position:relative;top:1px}
+.sttab:hover{color:var(--t2)}
+.sttab.active{color:var(--t1);border-bottom-color:var(--v)}
+.st-pane{display:none;padding:22px}
+.st-pane.active{display:block}
+
+/* UPLOAD */
+.up-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:580px){.up-grid{grid-template-columns:1fr}}
+.upzone{border:2px dashed var(--b2);border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;transition:all 0.22s;background:var(--s2)}
+.upzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upzone:hover,.upzone.drag{border-color:var(--v);background:rgba(124,111,255,0.06);border-style:solid}
+.up-ico{font-size:28px;margin-bottom:9px}
+.up-title{font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px}
+.up-hint{font-size:12px;color:var(--t3)}
+.fmt-row{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.fmt{background:var(--s3);border:1px solid var(--b1);padding:2px 8px;border-radius:20px;font-size:10px;color:var(--t3);font-weight:600}
+.mrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.mthumb{width:56px;height:56px;border-radius:8px;overflow:hidden;position:relative;border:1px solid var(--b2)}
+.mthumb img,.mthumb video{width:100%;height:100%;object-fit:cover}
+.mthumb-rm{position:absolute;top:2px;right:2px;width:16px;height:16px;background:rgba(0,0,0,0.85);border:none;border-radius:50%;color:#fff;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
+.prev-box{background:var(--s2);border:1px solid var(--b1);border-radius:12px;overflow:hidden}
+.prev-box-head{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border-bottom:1px solid var(--b1)}
+.prev-box-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3)}
+.prev-box-body{background:#000;min-height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.prev-media{width:100%;max-height:240px;object-fit:cover;display:block}
+.prev-empty{text-align:center;color:var(--t3);font-size:12px;padding:16px}
+.prev-empty-ico{font-size:32px;margin-bottom:7px;opacity:0.3}
+
+/* OVERLAY */
+.ost-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.ost{padding:7px 15px;border-radius:20px;border:1px solid var(--b2);background:var(--s2);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'Bricolage Grotesque',sans-serif}
+.ost:hover{border-color:var(--b3);color:var(--t1)}
+.ost.active{background:var(--gm);border-color:transparent;color:#fff}
+.canvas-wrap{border-radius:12px;overflow:hidden;background:#000;min-height:180px;position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.canvas-media{width:100%;max-height:260px;object-fit:cover;display:block}
+.txt-ov{position:absolute;pointer-events:none;font-family:'Bricolage Grotesque',sans-serif}
+.ov-big{inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(18px,5vw,30px);font-weight:800;color:#fff;text-align:center;text-shadow:0 2px 16px rgba(0,0,0,0.9);padding:20px;line-height:1.2}
+.ov-sub{bottom:12px;left:12px;right:12px;font-size:clamp(13px,3vw,17px);font-weight:700;color:#fff;text-align:center;background:rgba(0,0,0,0.65);padding:7px 13px;border-radius:9px}
+.ov-top{top:12px;left:12px;right:12px;font-size:clamp(12px,2.5vw,15px);font-weight:700;color:#fff;background:rgba(0,0,0,0.7);padding:6px 13px;border-radius:8px}
+.ov-caption{bottom:0;left:0;right:0;font-size:clamp(12px,2.5vw,15px);font-weight:600;color:#fff;text-align:center;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:26px 14px 13px}
+.ov-neon{inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(16px,4.5vw,26px);font-weight:800;color:#fff;text-align:center;text-shadow:0 0 10px #7c6fff,0 0 20px #7c6fff,0 0 40px rgba(124,111,255,0.5);padding:20px;line-height:1.2}
+.ov-karaoke{bottom:16px;left:12px;right:12px;font-size:clamp(15px,3.5vw,20px);font-weight:900;color:#FFD700;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,0.9),-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000}
+
+/* FORM */
+.form-stack{display:flex;flex-direction:column;gap:13px;max-width:500px}
+.flbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--t3);margin-bottom:5px}
+textarea,select{background:var(--s2);border:1px solid var(--b1);color:var(--t1);padding:11px 13px;border-radius:11px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:all 0.22s;width:100%}
+textarea{resize:vertical;line-height:1.6}
+textarea:focus,select:focus{border-color:var(--v);box-shadow:0 0 0 3px rgba(124,111,255,0.1)}
+textarea::placeholder{color:var(--t3)}
+select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%234a4a6a' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.btn-gen{padding:13px;border-radius:12px;border:none;font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:700;cursor:pointer;background:var(--gm);color:#fff;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.22s;box-shadow:0 4px 20px rgba(124,111,255,0.3);margin-top:4px}
+.btn-gen:hover{filter:brightness(1.08);transform:translateY(-2px)}
+.btn-gen:disabled{opacity:0.35;cursor:not-allowed;transform:none;filter:none;box-shadow:none}
+
+/* OUTPUT */
+.output{background:var(--s1);border:1px solid var(--b1);border-radius:22px;overflow:hidden;margin-bottom:20px;display:none}
+.output.on{display:block;animation:up 0.3s ease}
+.out-head{padding:18px 22px;border-bottom:1px solid var(--b1);background:linear-gradient(135deg,rgba(124,111,255,0.06),rgba(255,92,138,0.03));display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.out-title{font-family:'Bricolage Grotesque',sans-serif;font-size:17px;font-weight:800}
+.out-plat{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;background:var(--s3);border:1px solid var(--b2)}
+.out-body{padding:18px 22px;display:flex;flex-direction:column;gap:11px}
+.out-block{background:var(--s2);border:1px solid var(--b1);border-radius:12px;overflow:hidden}
+.out-block-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--b1)}
+.out-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3)}
+.out-block-body{padding:14px;font-size:14px;line-height:1.8;color:var(--t1);white-space:pre-wrap}
+.tags-wrap{display:flex;flex-wrap:wrap;gap:7px;padding:12px 14px}
+.htag{background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.18);padding:4px 11px;border-radius:20px;font-size:12px;cursor:pointer;color:#a294ff;font-weight:500;transition:all 0.15s}
+.htag:hover{background:rgba(124,111,255,0.18)}
+.out-hook{color:var(--pk);font-weight:800;font-size:16px;font-family:'Bricolage Grotesque',sans-serif}
+.out-timing{color:var(--gr);font-weight:600}
+.osug-wrap{display:flex;flex-wrap:wrap;gap:7px;padding:12px 14px}
+.osug{background:rgba(124,111,255,0.1);border:1px solid rgba(124,111,255,0.2);padding:5px 13px;border-radius:20px;font-size:12px;cursor:pointer;color:#a294ff;font-weight:600;transition:all 0.2s}
+.osug:hover{background:rgba(124,111,255,0.2);transform:translateY(-1px)}
+.ig-mock{background:var(--s2);border:1px solid var(--b1);border-radius:12px;overflow:hidden}
+.ig-head{display:flex;align-items:center;gap:9px;padding:12px 14px;border-bottom:1px solid var(--b1)}
+.ig-av{width:32px;height:32px;border-radius:50%;background:var(--gm);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;flex-shrink:0}
+.ig-nm{font-size:13px;font-weight:700}
+.ig-tm{font-size:11px;color:var(--t3)}
+.ig-mw{background:#000;display:flex;align-items:center;justify-content:center;min-height:60px}
+.ig-mw img,.ig-mw video{width:100%;max-height:200px;object-fit:cover;display:block}
+.ig-bd{padding:12px 14px}
+.ig-reacts{font-size:19px;margin-bottom:9px;display:flex;gap:11px}
+.ig-cap{font-size:13px;line-height:1.7;color:var(--t2)}
+.ig-cap b{color:var(--t1);font-weight:700}
+.ig-tags{font-size:12px;color:#a294ff;margin-top:6px;line-height:1.8}
+.post-actions{padding:16px 22px;border-top:1px solid var(--b1);display:flex;gap:8px;flex-wrap:wrap}
+.act{flex:1;min-width:100px;padding:11px 14px;border-radius:11px;font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--b2);background:transparent;color:var(--t1);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.act:hover{background:var(--s3);border-color:var(--b3)}
+.act.dl{background:var(--gm);border:none;color:#fff}
+.act.dl:hover{filter:brightness(1.1)}
+.act.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcaf45);border:none;color:#fff}
+.act.ig:hover{filter:brightness(1.08)}
+.act.tk{background:linear-gradient(135deg,#010101,#ff0050);border:1px solid rgba(255,0,80,0.3);color:#fff}
+.act.th{background:#111;border:1px solid #333;color:#fff}
+.btn-cp{background:var(--s4);border:1px solid var(--b1);color:var(--t2);padding:5px 11px;border-radius:7px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;transition:all 0.2s}
+.btn-cp:hover{background:var(--s5);color:var(--t1)}
+.btn-cp.ok{color:var(--gr);border-color:rgba(0,212,160,0.3);background:rgba(0,212,160,0.08)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s2);border:1px solid var(--b2);border-radius:13px;padding:12px 18px;font-size:13px;font-weight:600;transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);z-index:9999;display:flex;align-items:center;gap:8px;max-width:300px;pointer-events:none;box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+.toast.on{transform:translateY(0);opacity:1}
+.toast.ok{border-color:rgba(0,212,160,0.3);color:var(--gr)}
+.toast.warn{border-color:rgba(255,184,48,0.3);color:var(--am)}
+.toast.err{border-color:rgba(255,92,138,0.3);color:var(--pk)}
+
+@media(max-width:640px){
+  .tgrid{grid-template-columns:1fr}
+  .up-grid{grid-template-columns:1fr}
+  .post-actions{flex-direction:column}
+  .act{min-width:unset}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo-sm">
+    <div class="logo-sm-ico">🌙</div>
+    <div class="logo-sm-txt">Lunaris</div>
+  </div>
+  <div class="topbar-right">
+    <div class="live-badge"><span class="live-dot"></span> Live · 25 mai 2026</div>
+    <div class="mkt-tog">
+      <button class="mkt-opt fr active" id="mkt-fr" onclick="setMkt('fr')">🇫🇷 FR</button>
+      <button class="mkt-opt us" id="mkt-us" onclick="setMkt('us')">🇺🇸 US</button>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="plt-row">
+    <button class="plt-tab reels active" id="ptb-reels" onclick="setPlt('reels')">🎬 Reels Instagram</button>
+    <button class="plt-tab post" id="ptb-post" onclick="setPlt('post')">🖼️ Posts Instagram</button>
+    <button class="plt-tab threads" id="ptb-threads" onclick="setPlt('threads')">🧵 Threads</button>
+    <button class="plt-tab tiktok" id="ptb-tiktok" onclick="setPlt('tiktok')">🎵 TikTok</button>
+  </div>
+
+  <div class="filter-row">
+    <button class="dchip active" onclick="setDate(this,'today')">📅 Aujourd'hui</button>
+    <button class="dchip" onclick="setDate(this,'week')">📆 Cette semaine</button>
+    <button class="dchip" onclick="setDate(this,'month')">🗓️ Ce mois</button>
+    <div class="sep"></div>
+    <div class="nchip-wrap" id="niche-wrap"></div>
+  </div>
+
+  <div class="search-wrap">
+    <button class="btn-go fr" id="btn-go" onclick="doSearch()">🌐 Trouver les trends virales maintenant</button>
+  </div>
+
+  <div class="loading-box" id="loading-box">
+    <div class="loading-logo">🌙</div>
+    <div class="loading-title">Lunaris recherche les trends du moment</div>
+    <div class="loading-msg" id="loading-msg">Connexion aux sources...</div>
+    <div class="loading-bar-track"><div class="loading-bar-fill" id="loading-bar"></div></div>
+    <div class="loading-steps" id="loading-steps"></div>
+    <div class="loading-timer" id="loading-timer"></div>
+    <button class="btn-retry" id="btn-retry" onclick="doSearch()">🔄 Réessayer</button>
+  </div>
+
+  <div class="results-hd" id="results-hd">
+    <div class="results-title">Trends trouvées <span class="results-count" id="results-count">0</span></div>
+    <div style="font-size:11px;color:var(--t3)">Sources : TikTok CC · Google Trends · Later · Hootsuite · SocialMediaToday</div>
+  </div>
+  <div class="tgrid" id="tgrid">
+    <div class="empty"><div class="empty-ico">📡</div><div class="empty-txt"><b>Prêt à tracker !</b>Sélectionne une niche et lance la recherche</div></div>
+  </div>
+
+  <div class="studio" id="studio">
+    <div class="studio-top">
+      <div>
+        <div class="studio-chip">✨ Trend sélectionnée</div>
+        <div class="studio-title" id="st-title">—</div>
+        <div class="studio-desc" id="st-desc"></div>
+      </div>
+      <button class="close-st" onclick="closeSt()">✕</button>
+    </div>
+    <div class="st-tabs">
+      <div class="sttab active" id="sttab-media" onclick="switchSt('media')">📁 Médias</div>
+      <div class="sttab" id="sttab-overlay" onclick="switchSt('overlay')">🎨 Overlay</div>
+      <div class="sttab" id="sttab-settings" onclick="switchSt('settings')">⚙️ Paramètres</div>
+      <div class="sttab" id="sttab-preview" onclick="switchSt('preview')">👁 Aperçu</div>
+    </div>
+    <div class="st-pane active" id="stp-media">
+      <div class="up-grid">
+        <div>
+          <div class="flbl" style="margin-bottom:9px">Upload tes médias</div>
+          <div class="upzone" id="upzone" ondragover="doDrag(event)" ondragleave="noDrag(event)" ondrop="doDrop(event)">
+            <input type="file" multiple accept="image/*,video/*" onchange="addMedia(event)">
+            <div class="up-ico">🖼️</div>
+            <div class="up-title">Glisse ici ou clique pour parcourir</div>
+            <div class="up-hint">Depuis ta galerie ou ton bureau</div>
+            <div class="fmt-row"><span class="fmt">JPG</span><span class="fmt">PNG</span><span class="fmt">MP4</span><span class="fmt">MOV</span></div>
+          </div>
+          <div class="mrow" id="mrow"></div>
+          <div style="font-size:12px;color:var(--t2);margin-top:9px;font-weight:500" id="mcount"></div>
+        </div>
+        <div class="prev-box">
+          <div class="prev-box-head"><div class="prev-box-lbl">Aperçu</div><div id="prev-plat" style="font-size:15px">🎬</div></div>
+          <div class="prev-box-body" id="prev-body"><div class="prev-empty"><div class="prev-empty-ico">📷</div>Ton média ici</div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
+        <button style="padding:10px 20px;border-radius:11px;background:var(--gm);border:none;color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:700;cursor:pointer" onclick="switchSt('overlay')">Suivant → Texte overlay</button>
+        <button style="padding:10px 20px;border-radius:11px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:600;cursor:pointer" onclick="switchSt('settings')">Passer aux paramètres</button>
+      </div>
+    </div>
+    <div class="st-pane" id="stp-overlay">
+      <div class="flbl" style="margin-bottom:9px">Style du texte overlay</div>
+      <div class="ost-row">
+        <button class="ost active" onclick="setOSt('big',this)">🔡 Gros texte</button>
+        <button class="ost" onclick="setOSt('sub',this)">📝 Sous-titre</button>
+        <button class="ost" onclick="setOSt('top',this)">⬆️ En haut</button>
+        <button class="ost" onclick="setOSt('caption',this)">⬇️ Bas de page</button>
+        <button class="ost" onclick="setOSt('neon',this)">✨ Néon</button>
+        <button class="ost" onclick="setOSt('karaoke',this)">🎤 Karaoké</button>
+      </div>
+      <div class="flbl" style="margin-bottom:7px">Texte à afficher</div>
+      <textarea id="overlay-inp" rows="2" placeholder="Ex: POV : tu découvres Paris pour la première fois ☀️" oninput="updateCanvas()"></textarea>
+      <div class="flbl" style="margin-top:14px;margin-bottom:9px">Aperçu en direct</div>
+      <div class="canvas-wrap" id="canvas-main">
+        <div class="prev-empty" style="color:var(--t3);padding:36px"><div class="prev-empty-ico">🖼️</div>Upload un média d'abord</div>
+      </div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn-cp" onclick="cpOne(document.getElementById('overlay-inp').value)">📋 Copier le texte</button>
+        <button style="padding:6px 14px;border-radius:8px;background:var(--gm);border:none;color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-size:12px;font-weight:700;cursor:pointer" onclick="dlMedia()">⬇️ Télécharger</button>
+      </div>
+      <button style="padding:10px 20px;border-radius:11px;background:var(--gm);border:none;color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:700;cursor:pointer" onclick="switchSt('settings')">Suivant → Paramètres</button>
+    </div>
+    <div class="st-pane" id="stp-settings">
+      <div class="form-stack">
+        <div><div class="flbl">Contexte de ton compte</div><textarea id="ctx-inp" rows="3" placeholder="Ex: Mia, modèle IA lifestyle, contenu soleil & Paris..."></textarea></div>
+        <div><div class="flbl">Objectif</div>
+          <select id="goal-inp"><option value="views">🔥 Maximiser les vues</option><option value="engagement">💬 Maximiser l'engagement</option><option value="followers">👥 Gagner des abonnés</option><option value="viral">🚀 Potentiel viral max</option></select>
+        </div>
+        <div><div class="flbl">Ton</div>
+          <select id="tone-inp"><option value="casual">😊 Casual & authentique</option><option value="aspirational">✨ Aspirationnel</option><option value="playful">🎉 Playful & fun</option><option value="mysterious">🌙 Mystérieux</option></select>
+        </div>
+        <div><div class="flbl">Type de compte</div>
+          <select id="actype-inp"><option value="ai_model">🤖 Modèle IA</option><option value="real_person">👤 Personne réelle</option><option value="brand">🏢 Marque / Agence</option></select>
+        </div>
+        <button class="btn-gen" id="btn-gen" onclick="genContent()">✨ Générer le contenu</button>
+      </div>
+    </div>
+    <div class="st-pane" id="stp-preview">
+      <div style="max-width:340px;margin:0 auto">
+        <div class="flbl" style="margin-bottom:12px">Aperçu du post</div>
+        <div id="ig-prev"><div class="prev-empty" style="padding:28px;text-align:center"><div class="prev-empty-ico">👁</div>Génère le contenu d'abord</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="output" id="output">
+    <div class="out-head">
+      <div class="out-title">🎉 Contenu prêt à poster !</div>
+      <div class="out-plat" id="out-plat">🎬 Reels</div>
+    </div>
+    <div class="out-body" id="out-body"></div>
+    <div class="post-actions" id="post-actions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const NF=['Lifestyle','Mode','Voyage','Food','Fitness','Beauté','Nightlife','Art','Tech','Humour'];
+const NU=['Lifestyle','Fashion','Travel','Food','Fitness','Beauty','Nightlife','Art','Tech','Comedy'];
+const PLAT={reels:{ico:'🎬',label:'Reels Instagram',url:'https://www.instagram.com/reels/'},post:{ico:'🖼️',label:'Posts Instagram',url:'https://www.instagram.com/'},threads:{ico:'🧵',label:'Threads',url:'https://www.threads.net/'},tiktok:{ico:'🎵',label:'TikTok',url:'https://www.tiktok.com/upload'}};
+const OSTYLES={big:'txt-ov ov-big',sub:'txt-ov ov-sub',top:'txt-ov ov-top',caption:'txt-ov ov-caption',neon:'txt-ov ov-neon',karaoke:'txt-ov ov-karaoke'};
+const MSGS_FR=['🌐 Connexion à TikTok Creative Center...','🔍 Recherche sur Google Trends France...','📊 Analyse Later.com & Hootsuite...','📱 Lecture SocialMediaToday...','🧠 Claude analyse les données du 25 mai 2026...','✨ Compilation des meilleures trends...','🎯 Presque prêt...'];
+const MSGS_US=['🌐 Connecting to TikTok Creative Center...','🔍 Searching Google Trends US...','📊 Analyzing Later.com & Hootsuite...','📱 Reading SocialMediaToday...','🧠 Claude analyzing May 25 data...','✨ Compiling the best trends...','🎯 Almost ready...'];
+const STEPS_FR=['🌐 Web','🔍 Google','📱 TikTok CC','📊 Blogs','🧠 Analyse','✅ Résultats'];
+const STEPS_US=['🌐 Web','🔍 Google','📱 TikTok CC','📊 Blogs','🧠 Analysis','✅ Results'];
+
+let mkt='fr',plt='reels',selDate='today',selNiche='Lifestyle',selTrend=null,oStyle='big';
+let mediaFiles=[],mediaURLs=[],msgIdx=0,msgTimer=null,timerInterval=null,startTime=null;
+
+function initNiches(){
+  const arr=mkt==='fr'?NF:NU;
+  const el=document.getElementById('niche-wrap');
+  el.innerHTML='';
+  arr.forEach((n,i)=>{
+    const b=document.createElement('button');
+    b.className='nchip'+(i===0?' active '+mkt:'');
+    b.textContent=n;b.onclick=()=>pickN(b,n);
+    el.appendChild(b);
+  });
+  selNiche=arr[0];
+}
+function pickN(el,n){document.querySelectorAll('.nchip').forEach(c=>c.classList.remove('active','fr','us'));el.classList.add('active',mkt);selNiche=n}
+function setMkt(m){
+  mkt=m;
+  document.querySelectorAll('.mkt-opt').forEach(b=>b.classList.remove('active','fr','us'));
+  document.getElementById('mkt-'+m).classList.add('active',m);
+  document.getElementById('btn-go').className='btn-go '+m;
+  initNiches();
+}
+function setPlt(p){
+  plt=p;
+  document.querySelectorAll('.plt-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('ptb-'+p).classList.add('active');
+  document.getElementById('prev-plat').textContent=PLAT[p].ico;
+}
+function setDate(el,v){document.querySelectorAll('.dchip').forEach(b=>b.classList.remove('active'));el.classList.add('active');selDate=v}
+
+function startLoading(){
+  const box=document.getElementById('loading-box');
+  box.classList.add('on');
+  document.getElementById('loading-bar').style.width='0%';
+  document.getElementById('btn-retry').classList.remove('on');
+  msgIdx=0;startTime=Date.now();
+  updateMsg();
+  msgTimer=setInterval(updateMsg,2800);
+  timerInterval=setInterval(()=>{
+    const s=Math.round((Date.now()-startTime)/1000);
+    document.getElementById('loading-timer').textContent=mkt==='fr'?`⏱️ Recherche en cours... ${s}s`:`⏱️ Searching... ${s}s`;
+  },1000);
+}
+function updateMsg(){
+  const msgs=mkt==='fr'?MSGS_FR:MSGS_US;
+  const steps=mkt==='fr'?STEPS_FR:STEPS_US;
+  if(msgIdx<msgs.length){
+    document.getElementById('loading-msg').textContent=msgs[msgIdx];
+    document.getElementById('loading-bar').style.width=Math.min(10+msgIdx*13,88)+'%';
+    document.getElementById('loading-steps').innerHTML=steps.map((s,i)=>`<div class="lstep ${i<msgIdx?'done':i===msgIdx?'active':''}">${s}</div>`).join('');
+    msgIdx++;
+  }
+}
+function stopLoading(ok){
+  clearInterval(msgTimer);clearInterval(timerInterval);
+  if(ok){
+    document.getElementById('loading-bar').style.width='100%';
+    document.getElementById('loading-msg').textContent=mkt==='fr'?'✅ Trends trouvées !':'✅ Trends found!';
+    setTimeout(()=>document.getElementById('loading-box').classList.remove('on'),900);
+  }else{
+    document.getElementById('loading-msg').textContent=mkt==='fr'?'❌ Erreur — réessaie':'❌ Error — retry';
+    document.getElementById('btn-retry').classList.add('on');
+  }
+}
+
+async function doSearch(){
+  const btn=document.getElementById('btn-go');
+  btn.disabled=true;btn.innerHTML='<div class="spin"></div>'+(mkt==='fr'?' Recherche...':' Searching...');
+  document.getElementById('results-hd').classList.remove('on');
+  document.getElementById('studio').classList.remove('on');
+  document.getElementById('output').classList.remove('on');
+  document.getElementById('tgrid').innerHTML=Array(6).fill('<div class="sk"></div>').join('');
+  startLoading();
+
+  const isFr=mkt==='fr';
+  const p=PLAT[plt];
+  const dateLabel=isFr?'25 mai 2026 (semaine du 19-25 mai 2026)':'May 25, 2026 (week of May 19-25, 2026)';
+  const prompt=isFr
+    ?`Expert stratégie contenu social media. Date: ${dateLabel}. Plateforme: ${p.label}. Niche: "${selNiche}". Cherche sur TikTok Creative Center, Google Trends France, Later.com, Hootsuite, SocialMediaToday, InfluencerMarketingHub. Génère 6 trends virales actuelles. JSON UNIQUEMENT: {"trends":[{"rank":1,"title":"Nom","desc":"2 phrases","heat":"hot|rising|stable","why":"Pourquoi ça cartonne","tags":["#t1","#t2","#t3","#t4","#t5"],"audio":"audio ou null","overlay":"texte overlay max 8 mots","views":"XM","engagement":"+X%","source":"source"}]}`
+    :`Social media strategy expert. Date: ${dateLabel}. Platform: ${p.label}. Niche: "${selNiche}". Search TikTok Creative Center, Google Trends US, Later.com, Hootsuite, SocialMediaToday, InfluencerMarketingHub. Generate 6 current viral trends. JSON ONLY: {"trends":[{"rank":1,"title":"Name","desc":"2 sentences","heat":"hot|rising|stable","why":"Why it works","tags":["#t1","#t2","#t3","#t4","#t5"],"audio":"audio or null","overlay":"overlay text max 8 words","views":"XM","engagement":"+X%","source":"source"}]}`;
+
+  try{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),90000);
+    // Appel via la fonction Netlify — plus de problème CORS !
+    const res=await fetch('/.netlify/functions/search',{
+      method:'POST',
+      signal:controller.signal,
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:3500,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    clearTimeout(timeout);
+    const data=await res.json();
+    if(data.error)throw new Error(data.error.message||data.error);
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    const trends=parsed.trends||[];
+    stopLoading(true);
+    renderTrends(trends);
+    document.getElementById('results-hd').classList.add('on');
+    document.getElementById('results-count').textContent=trends.length;
+    setTimeout(()=>document.getElementById('results-hd').scrollIntoView({behavior:'smooth',block:'start'}),200);
+  }catch(e){
+    console.error(e);
+    stopLoading(false);
+    document.getElementById('tgrid').innerHTML='<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-txt"><b>Erreur de connexion</b>Clique sur Réessayer. Si ça persiste, vérifie la clé API dans les variables Netlify.</div></div>';
+  }
+  btn.disabled=false;btn.innerHTML='🌐 Trouver les trends virales maintenant';
+}
+
+function renderTrends(trends){
+  const grid=document.getElementById('tgrid');
+  if(!trends.length){grid.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><div class="empty-txt"><b>Aucun résultat</b>Essaie une autre niche</div></div>';return}
+  grid.innerHTML=trends.map(t=>{
+    const tj=JSON.stringify(t).replace(/"/g,'&quot;');
+    const hc=t.heat==='hot'?'hot':t.heat==='rising'?'rising':'stable';
+    const hl=t.heat==='hot'?'🔥 Hot':t.heat==='rising'?'📈 Rising':'✅ Stable';
+    return`<div class="tcard ${plt}" onclick="selectTrend(this,${tj})">
+      <div class="tcard-bar"></div>
+      <div class="tcard-visual">
+        <div class="tcard-visual-bg"></div>
+        <div class="tcard-visual-ico">${PLAT[plt].ico}</div>
+        <div class="tcard-heat ${hc}">${hl}</div>
+        <div class="tcard-plat">${PLAT[plt].ico} ${PLAT[plt].label}</div>
+        ${t.source?`<div class="tcard-src">📍 ${t.source}</div>`:''}
+      </div>
+      <div class="tcard-body">
+        <div class="tcard-title">${t.title}</div>
+        <div class="tcard-desc">${t.desc}</div>
+        ${t.why?`<div class="tcard-why">💡 ${t.why}</div>`:''}
+        ${t.audio?`<div class="tcard-audio">🎵 ${t.audio}</div>`:''}
+        ${t.overlay?`<div class="tcard-overlay">🎨 "${t.overlay}"</div>`:''}
+        <div class="tcard-tags">${(t.tags||[]).slice(0,4).map(tg=>`<span class="tcard-tag">${tg}</span>`).join('')}</div>
+        <div class="tcard-footer"><div class="tcard-stats">${t.views?`<span>👁 ${t.views}</span>`:''}${t.engagement?`<span>📊 ${t.engagement}</span>`:''}</div></div>
+      </div>
+      <div class="tcard-actions">
+        <button class="btn-adapt" onclick="event.stopPropagation();selectTrend(this.closest('.tcard'),${tj});openSt()">✨ Adapter cette trend</button>
+        <button class="btn-htag" title="Copier hashtags" onclick="event.stopPropagation();cpOne('${(t.tags||[]).join(' ')}')" >🏷️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectTrend(card,t){
+  document.querySelectorAll('.tcard').forEach(c=>c.classList.remove('sel'));
+  card.classList.add('sel');selTrend=t;
+  document.getElementById('st-title').textContent=t.title;
+  document.getElementById('st-desc').textContent=t.desc;
+  if(t.overlay){document.getElementById('overlay-inp').value=t.overlay;updateCanvas()}
+}
+function openSt(){document.getElementById('studio').classList.add('on');document.getElementById('output').classList.remove('on');setTimeout(()=>document.getElementById('studio').scrollIntoView({behavior:'smooth',block:'start'}),100)}
+function closeSt(){document.getElementById('studio').classList.remove('on')}
+function switchSt(tab){
+  ['media','overlay','settings','preview'].forEach(t=>{
+    document.getElementById('sttab-'+t).classList.remove('active');
+    document.getElementById('stp-'+t).classList.remove('active');
+  });
+  document.getElementById('sttab-'+tab).classList.add('active');
+  document.getElementById('stp-'+tab).classList.add('active');
+}
+function addMedia(e){
+  Array.from(e.target.files).forEach(f=>{
+    const idx=mediaFiles.length;mediaFiles.push(f);
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const url=ev.target.result;mediaURLs.push(url);
+      const d=document.createElement('div');d.className='mthumb';
+      const isV=f.type.startsWith('video/');
+      d.innerHTML=isV?`<video src="${url}"></video><button class="mthumb-rm" onclick="rmMedia(${idx})">✕</button>`:`<img src="${url}"><button class="mthumb-rm" onclick="rmMedia(${idx})">✕</button>`;
+      document.getElementById('mrow').appendChild(d);
+      document.getElementById('mcount').textContent=mediaFiles.length+' fichier'+(mediaFiles.length>1?'s':'');
+      document.getElementById('prev-body').innerHTML=isV?`<video src="${url}" class="prev-media" controls></video>`:`<img src="${url}" class="prev-media">`;
+      updateCanvas();
+    };reader.readAsDataURL(f);
+  });
+}
+function rmMedia(i){mediaFiles.splice(i,1);mediaURLs.splice(i,1);const r=document.getElementById('mrow');if(r.children[i])r.children[i].remove();document.getElementById('mcount').textContent=mediaFiles.length>0?mediaFiles.length+' fichier'+(mediaFiles.length>1?'s':''):'';}
+function doDrag(e){e.preventDefault();document.getElementById('upzone').classList.add('drag')}
+function noDrag(e){document.getElementById('upzone').classList.remove('drag')}
+function doDrop(e){e.preventDefault();noDrag(e);if(e.dataTransfer.files.length)addMedia({target:{files:e.dataTransfer.files}})}
+function setOSt(s,el){oStyle=s;document.querySelectorAll('.ost').forEach(b=>b.classList.remove('active'));el.classList.add('active');updateCanvas()}
+function updateCanvas(){
+  const c=document.getElementById('canvas-main');
+  const txt=document.getElementById('overlay-inp').value;
+  const url=mediaURLs[0]||null;
+  const isV=mediaFiles[0]?.type?.startsWith('video/');
+  if(!url){c.innerHTML='<div class="prev-empty" style="color:var(--t3);padding:36px"><div class="prev-empty-ico">🖼️</div>Upload un média d\'abord</div>';return}
+  const cls=OSTYLES[oStyle]||'txt-ov ov-big';
+  c.innerHTML=(isV?`<video src="${url}" style="width:100%;max-height:260px;object-fit:cover;display:block"></video>`:`<img src="${url}" style="width:100%;max-height:260px;object-fit:cover;display:block">`)+(txt?`<div class="${cls}">${txt}</div>`:'');
+}
+function dlMedia(){
+  const url=mediaURLs[0];if(!url){toast('Upload d\'abord un média','warn');return}
+  const a=document.createElement('a');a.href=url;a.download='lunaris_'+Date.now()+(mediaFiles[0]?.type?.includes('video')?'.mp4':'.jpg');a.click();
+  toast('Téléchargé ! Ajoute le texte dans l\'app 📱','ok');
+}
+async function genContent(){
+  if(!selTrend){toast('Sélectionne une trend d\'abord','warn');return}
+  const btn=document.getElementById('btn-gen');
+  btn.disabled=true;btn.innerHTML='<div class="spin"></div> Génération...';
+  const ctx=document.getElementById('ctx-inp').value;
+  const goal=document.getElementById('goal-inp').value;
+  const tone=document.getElementById('tone-inp').value;
+  const actype=document.getElementById('actype-inp').value;
+  const p=PLAT[plt];
+  const isFr=mkt==='fr';
+  const isReels=plt==='reels',isTK=plt==='tiktok',isTH=plt==='threads';
+  const overlayTxt=document.getElementById('overlay-inp').value;
+  const prompt=isFr
+    ?`Expert contenu ${p.label} France, 25 mai 2026. Trend: "${selTrend.title}". Plateforme: ${p.label}. Tags: ${(selTrend.tags||[]).join(', ')}${selTrend.audio?'. Audio: '+selTrend.audio:''}. Contexte: ${ctx||'Compte lifestyle'}. Objectif: ${goal}. Ton: ${tone}. Type: ${actype}. ${overlayTxt?'Overlay: "'+overlayTxt+'"':''} ${isReels||isTK?'Structure seconde par seconde 7-8s.':''} JSON UNIQUEMENT: {"caption":"caption émojis max 150 mots","hashtags":["#t1","#t2","#t3","#t4","#t5","#t6","#t7","#t8","#t9","#t10","#t11","#t12"],"hook":"Accroche 2 premières secondes max 8 mots","overlays":["overlay 1","overlay 2","overlay 3"],"structure":"structure","timing":"Meilleur moment poster France"}`
+    :`${p.label} content expert US. Trend: "${selTrend.title}". Platform: ${p.label}. Tags: ${(selTrend.tags||[]).join(', ')}. Context: ${ctx||'Lifestyle account'}. Goal: ${goal}. Tone: ${tone}. Type: ${actype}. JSON ONLY: {"caption":"caption emojis max 150 words","hashtags":["#t1","#t2","#t3","#t4","#t5","#t6","#t7","#t8","#t9","#t10","#t11","#t12"],"hook":"Hook first 2 seconds","overlays":["overlay 1","overlay 2","overlay 3"],"structure":"structure","timing":"Best time to post US"}`;
+  try{
+    const res=await fetch('/.netlify/functions/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2200,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    if(data.error)throw new Error(data.error.message||data.error);
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    const tags=(parsed.hashtags||[]).map(h=>`<span class="htag" onclick="cpOne('${h}')">${h}</span>`).join('');
+    const osugHtml=(parsed.overlays||[]).map(o=>`<div class="osug" onclick="applyOv('${o.replace(/'/g,"\\'")}')">🎨 ${o}</div>`).join('');
+    const mediaUrl=mediaURLs[0]||null;
+    const isV=mediaFiles[0]?.type?.startsWith('video/');
+    const mp=mediaUrl?(isV?`<video src="${mediaUrl}" style="width:100%;max-height:190px;object-fit:cover;display:block"></video>`:`<img src="${mediaUrl}" style="width:100%;max-height:190px;object-fit:cover;display:block">`):'';
+    const capShort=(parsed.caption||'').substring(0,100)+((parsed.caption||'').length>100?'...':'');
+    const tagsShort=(parsed.hashtags||[]).slice(0,5).join(' ');
+    document.getElementById('out-body').innerHTML=`
+      ${parsed.hook?`<div class="out-block" style="border-color:rgba(255,92,138,0.25)"><div class="out-block-head"><span class="out-lbl" style="color:#ff7aa5">⚡ Accroche</span><button class="btn-cp" onclick="cpTxt('ohook',this)">Copier</button></div><div class="out-block-body out-hook" id="ohook">${parsed.hook}</div></div>`:''}
+      <div class="out-block"><div class="out-block-head"><span class="out-lbl">Caption</span><button class="btn-cp" onclick="cpTxt('ocap',this)">Copier</button></div><div class="out-block-body" id="ocap">${parsed.caption||''}</div></div>
+      <div class="out-block"><div class="out-block-head"><span class="out-lbl">Hashtags</span><button class="btn-cp" onclick="cpAllTags('otags',this)">Tout copier</button></div><div class="tags-wrap" id="otags">${tags}</div></div>
+      ${osugHtml?`<div class="out-block" style="border-color:rgba(124,111,255,0.2)"><div class="out-block-head"><span class="out-lbl" style="color:#a294ff">🎨 Overlays suggérés</span></div><div class="osug-wrap">${osugHtml}</div></div>`:''}
+      ${parsed.structure?`<div class="out-block"><div class="out-block-head"><span class="out-lbl">Structure</span></div><div class="out-block-body">${parsed.structure}</div></div>`:''}
+      <div class="out-block"><div class="out-block-head"><span class="out-lbl">⏰ Meilleur moment</span></div><div class="out-block-body out-timing">${parsed.timing||''}</div></div>
+      <div class="ig-mock" style="margin-top:4px"><div class="ig-head"><div class="ig-av">M</div><div><div class="ig-nm">@moonlight.model</div><div class="ig-tm">À l'instant · ${p.ico} ${p.label}</div></div></div>${mp?`<div class="ig-mw">${mp}</div>`:''}<div class="ig-bd"><div class="ig-reacts">❤️ 💬 📤 🔖</div><div class="ig-cap"><b>moonlight.model</b> ${capShort}</div><div class="ig-tags">${tagsShort}</div></div></div>`;
+    document.getElementById('out-plat').textContent=p.ico+' '+p.label;
+    const isIG=plt==='reels'||plt==='post';const isTKp=plt==='tiktok';const isTHp=plt==='threads';
+    document.getElementById('post-actions').innerHTML=`
+      <button class="act" onclick="cpAll()">📋 Tout copier</button>
+      <button class="act dl" onclick="dlFile()">⬇️ Télécharger</button>
+      ${isIG?`<button class="act ig" onclick="openPlt('ig')">📱 Instagram</button>`:''}
+      ${isTKp?`<button class="act tk" onclick="openPlt('tk')">🎵 TikTok</button>`:''}
+      ${isTHp?`<button class="act th" onclick="openPlt('th')">🧵 Threads</button>`:''}`;
+    document.getElementById('ig-prev').innerHTML=`<div class="ig-mock"><div class="ig-head"><div class="ig-av">M</div><div><div class="ig-nm">@moonlight.model</div><div class="ig-tm">${p.ico} ${p.label}</div></div></div>${mp?`<div class="ig-mw">${mp}</div>`:''}<div class="ig-bd"><div class="ig-reacts">❤️ 💬 📤 🔖</div><div class="ig-cap"><b>moonlight.model</b> ${capShort}</div><div class="ig-tags">${tagsShort}</div></div></div>`;
+    switchSt('preview');
+    document.getElementById('output').classList.add('on');
+    setTimeout(()=>document.getElementById('output').scrollIntoView({behavior:'smooth',block:'start'}),120);
+    toast(isFr?'✓ Contenu généré !':'✓ Content generated!','ok');
+  }catch(e){console.error(e);toast('Erreur génération','err')}
+  btn.disabled=false;btn.innerHTML='✨ Générer le contenu';
+}
+function applyOv(txt){document.getElementById('overlay-inp').value=txt;updateCanvas();switchSt('overlay');toast('Overlay appliqué !','ok')}
+function openPlt(p){const urls={ig:'https://www.instagram.com/',tk:'https://www.tiktok.com/upload',th:'https://www.threads.net/'};cpAll();window.open(urls[p],'_blank');toast('Caption copiée → colle dans l\'app !','ok')}
+function cpTxt(id,btn){const el=document.getElementById(id);if(!el)return;navigator.clipboard.writeText(el.textContent).then(()=>{btn.textContent='✓';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Copier';btn.classList.remove('ok')},2000)})}
+function cpAllTags(id,btn){const t=Array.from(document.getElementById(id).querySelectorAll('.htag')).map(e=>e.textContent).join(' ');navigator.clipboard.writeText(t).then(()=>{btn.textContent='✓';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Tout copier';btn.classList.remove('ok')},2000)})}
+function cpOne(t){if(!t)return;navigator.clipboard.writeText(t);toast(t.substring(0,30)+' copié','ok')}
+function cpAll(){
+  const cap=document.getElementById('ocap')?.textContent||'';
+  const tags=Array.from(document.getElementById('otags')?.querySelectorAll('.htag')||[]).map(e=>e.textContent).join(' ');
+  navigator.clipboard.writeText(cap+'\n\n'+tags);toast('Caption + hashtags copiés !','ok');
+}
+function dlFile(){
+  const p=PLAT[plt];
+  const cap=document.getElementById('ocap')?.textContent||'';
+  const tags=Array.from(document.getElementById('otags')?.querySelectorAll('.htag')||[]).map(e=>e.textContent).join(' ');
+  const hook=document.getElementById('ohook')?.textContent||'';
+  const overlay=document.getElementById('overlay-inp')?.value||'';
+  const txt=`LUNARIS\n${'═'.repeat(40)}\nTrend: ${selTrend?.title||''}\nPlateforme: ${p.label}\nDate: 25 mai 2026\n${'═'.repeat(40)}\n\n⚡ ACCROCHE:\n${hook}\n\n🎨 OVERLAY:\n${overlay}\n\n📝 CAPTION:\n${cap}\n\n🏷️ HASHTAGS:\n${tags}\n`;
+  const blob=new Blob([txt],{type:'text/plain'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='lunaris_'+Date.now()+'.txt';a.click();URL.revokeObjectURL(url);
+  toast('Téléchargé ✓','ok');
+}
+function toast(msg,type='ok'){const el=document.getElementById('toast');el.textContent=msg;el.className='toast on '+type;clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),3500)}
+initNiches();
+</script>
+</body>
+</html>
